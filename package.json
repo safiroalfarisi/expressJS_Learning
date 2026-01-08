@@ -1,5 +1,31 @@
 {
+  "name": "expressjs_learning",
+  "version": "1.0.0",
+  "description": "🚀 Node.js & Express Learning Journey: Internship Task #01",
+  "main": "index.js",
   "dependencies": {
-    "express": "^5.2.1"
-  }
+    "express": "^5.2.1",
+    "mongodb": "^7.0.0",
+    "mongoose": "^9.1.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/safiroalfarisi/expressJS_Learning.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/safiroalfarisi/expressJS_Learning/issues"
+  },
+  "homepage": "https://github.com/safiroalfarisi/expressJS_Learning#readme"
 }
