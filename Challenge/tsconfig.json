@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    /* File Layout */
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    /* Environment Settings */
+    "module": "CommonJS", 
+    "target": "ES2020",
+    "lib": ["ES2020"],
+    "types": ["node"],
+
+    /* Other Outputs */
+    "sourceMap": true,
+    "noEmit": false,        // MUST BE FALSE so you can actually build the project
+    "declaration": true,
+
+    /* Recommended Options */
+    "strict": true,
+    "esModuleInterop": true, // Critical for importing Express and Sequelize correctly
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
