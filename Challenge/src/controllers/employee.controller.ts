@@ -1,5 +1,9 @@
 import type { Request, Response } from 'express';
 import Employee from '../models/employee.model';
+import fs from 'fs';
+import csv from 'csv-parser';
+import path from 'path';
+import { sendWelcomeEmail } from '../services/email.service';
 
 // 1. Get all employees (Read)
 export const getAllEmployees = async (req: Request, res: Response) => {
@@ -15,6 +19,10 @@ export const getAllEmployees = async (req: Request, res: Response) => {
 export const createEmployee = async (req: Request, res: Response) => {
     try {
         const employee = await Employee.create(req.body);
+        
+        // --- ADD THIS LINE TO TRIGGER THE EMAIL ---
+        await sendWelcomeEmail(employee.email, employee.name);
+        
         res.status(201).json(employee);
     } catch (error: any) {
         res.status(500).json({ message: error.message });
@@ -67,3 +75,42 @@ export const deleteEmployee = async (req: Request, res: Response) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+
+
+// --- IMPORT CSV ---
+export const importEmployees = async (req: Request, res: Response) => {
+    try {
+        if (!req.file) return res.status(400).json({ message: "Please upload a CSV file" });
+
+        const results: any[] = [];
+        fs.createReadStream(req.file.path)
+            .pipe(csv())
+            .on('data', (data) => results.push(data))
+            .on('end', async () => {
+                await Employee.bulkCreate(results); // Bulk insert into Postgres
+                fs.unlinkSync(req.file!.path); // Delete file after processing
+                res.status(200).json({ message: "Employees imported successfully" });
+            });
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// --- EXPORT CSV ---
+export const exportEmployees = async (req: Request, res: Response) => {
+    try {
+        const employees = await Employee.findAll();
+        let csvData = "name,email,position\n";
+        employees.forEach(emp => {
+            csvData += `${emp.name},${emp.email},${emp.position}\n`;
+        });
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename=employees.csv');
+        res.status(200).send(csvData);
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
+

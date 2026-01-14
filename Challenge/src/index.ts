@@ -3,6 +3,7 @@ import type { Application, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import sequelize from './config/db.config';
 import employeeRoutes from './routes/employee.route';
+import { initCronJobs } from './services/cron.service'; // Added import
 
 // Initialize environment variables
 dotenv.config();
@@ -10,7 +11,7 @@ dotenv.config();
 const app: Application = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware (replaces express.json() and urlencoded from your old project)
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -28,17 +29,20 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log('✅ Connected to PostgreSQL database successfully.');
 
-    // Sync models with database (creates table if it doesn't exist)
-    // Use { alter: true } during development to update tables automatically
+    // Sync models with database
     await sequelize.sync({ alter: true });
     console.log('✅ Database synchronized.');
+
+    // Challenge Task: Initialize Cron Jobs before the server starts listening
+    initCronJobs();
+    console.log('✅ Scheduled tasks (Cron Jobs) initialized.');
 
     app.listen(PORT, () => {
       console.log(`🚀 Server is running on http://localhost:${PORT}`);
     });
   } catch (error) {
     console.error('❌ Unable to connect to the database:', error);
-    process.exit(1); // Stop the app if DB connection fails
+    process.exit(1); 
   }
 };
 
