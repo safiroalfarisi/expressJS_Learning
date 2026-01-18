@@ -5,7 +5,7 @@ import csv from 'csv-parser';
 import path from 'path';
 import { sendWelcomeEmail } from '../services/email.service';
 
-// 1. Get all employees (Read)
+// 1. Get all employees 
 export const getAllEmployees = async (req: Request, res: Response) => {
     try {
         const employees = await Employee.findAll();
@@ -15,38 +15,43 @@ export const getAllEmployees = async (req: Request, res: Response) => {
     }
 };
 
-// 2. Create an employee (Create)
+// 2. Create an employee 
 export const createEmployee = async (req: Request, res: Response) => {
     try {
+        //input many user
+        if (Array.isArray(req.body)) {
+            const employees = await Employee.bulkCreate(req.body);
+            
+            // Send emails to everyone in the array
+            for (const emp of employees) {
+                await sendWelcomeEmail(emp.email, emp.name);
+            }
+            
+            return res.status(201).json(employees);
+        }
+        //input single user
         const employee = await Employee.create(req.body);
-        
-        // --- ADD THIS LINE TO TRIGGER THE EMAIL ---
         await sendWelcomeEmail(employee.email, employee.name);
-        
         res.status(201).json(employee);
     } catch (error: any) {
         res.status(500).json({ message: error.message });
     }
 };
 
-// 3. Update an employee (Update)
+// 3. Update an employee 
 export const updateEmployee = async (req: Request, res: Response) => {
     try {
         const id = req.params.id as string;
         
-        // Ensure req.body exists before destructuring
         if (!req.body) {
             return res.status(400).json({ message: "Request body is missing" });
         }
 
         const employee = await Employee.findByPk(Number(id));
-
         if (!employee) {
             return res.status(404).json({ message: 'Employee not found' });
         }
-
         const { name, email, position } = req.body;
-
         await employee.update({
             name: name || employee.name,
             email: email || employee.email,
@@ -59,7 +64,7 @@ export const updateEmployee = async (req: Request, res: Response) => {
     }
 };
 
-// 4. Delete an employee (Delete)
+// 4. Delete an employee 
 export const deleteEmployee = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
@@ -77,8 +82,7 @@ export const deleteEmployee = async (req: Request, res: Response) => {
 };
 
 
-
-// --- IMPORT CSV ---
+// 5. IMPORT CSV 
 export const importEmployees = async (req: Request, res: Response) => {
     try {
         if (!req.file) return res.status(400).json({ message: "Please upload a CSV file" });
@@ -97,7 +101,7 @@ export const importEmployees = async (req: Request, res: Response) => {
     }
 };
 
-// --- EXPORT CSV ---
+// 6. EXPORT CSV 
 export const exportEmployees = async (req: Request, res: Response) => {
     try {
         const employees = await Employee.findAll();
