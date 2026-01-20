@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import sequelize from './config/db.config';
 import employeeRoutes from './routes/employee.route';
 import { initCronJobs } from './services/cron.service'; // Added import
+import { register, login } from './controllers/auth.controller';
 
 // Initialize environment variables
 dotenv.config();
@@ -16,6 +17,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
+app.post('/api/register', register);
+app.post('/api/login', login);
 app.use('/api/employees', employeeRoutes);
 
 app.get('/', (req: Request, res: Response) => {
