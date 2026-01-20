@@ -3,7 +3,7 @@ import type { Application, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import sequelize from './config/db.config';
 import employeeRoutes from './routes/employee.route';
-import { initCronJobs } from './services/cron.service'; // Added import
+import { initReportJob } from './services/cron.service'; // Added import
 import { register, login } from './controllers/auth.controller';
 
 // Initialize environment variables
@@ -37,7 +37,7 @@ const startServer = async () => {
     console.log('✅ Database synchronized.');
 
     // Challenge Task: Initialize Cron Jobs before the server starts listening
-    initCronJobs();
+    initReportJob();
     console.log('✅ Scheduled tasks (Cron Jobs) initialized.');
 
     app.listen(PORT, () => {
